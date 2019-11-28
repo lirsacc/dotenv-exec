@@ -112,7 +112,6 @@ fn set_user(command: &mut Command, user: Option<String>) {
     match get_user_by_name(&u) {
       Some(user) => {
         command.uid(user.uid());
-        ()
       }
       _ => {
         eprintln!("User {} not found", &u);
@@ -127,7 +126,6 @@ fn set_group(command: &mut Command, group: Option<String>) {
     match get_group_by_name(&g) {
       Some(group) => {
         command.gid(group.gid());
-        ()
       }
       _ => {
         eprintln!("Group {} not found", &g);
