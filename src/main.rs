@@ -4,9 +4,8 @@
 //!
 
 use std::fs;
-use std::io;
-use std::os::unix::process::{CommandExt, ExitStatusExt};
-use std::process::{exit, id as get_pid, Command, Output};
+use std::os::unix::process::CommandExt;
+use std::process::{exit, id as get_pid, Command};
 
 use structopt::StructOpt;
 use users::{get_group_by_name, get_user_by_name};
@@ -49,27 +48,10 @@ fn main() {
   set_user(&mut command, options.user);
   set_group(&mut command, options.group);
 
-  let output_result = exec(&mut command);
-
-  if let Err(e) = output_result {
-    eprintln!("Failed to spawn: {}", e);
-    exit(1);
-  }
-
-  let output = output_result.unwrap();
-
-  exit(match output.status.code() {
-    None => match output.status.signal() {
-      None => 1,
-      Some(c) => c,
-    },
-    Some(c) => c,
-  });
-}
-
-// Here to lift the chaoned io::Err. There must be a cleaner way to do this inline.
-fn exec(command: &mut Command) -> io::Result<Output> {
-  command.spawn()?.wait_with_output()
+  // exec doesn't return unless something went wrong.
+  let err = command.exec();
+  eprintln!("Failed to exec: {}", err);
+  exit(1);
 }
 
 fn set_directory(command: &mut Command, directory: Option<String>) {
