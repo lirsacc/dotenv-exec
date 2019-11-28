@@ -21,7 +21,7 @@ version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "dotenv-run"
+name = "dotenv-exec"
 version = "0.1.0"
 dependencies = [
  "dotenv 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -1,5 +1,5 @@
 [package]
-name = "dotenv-run"
+name = "dotenv-exec"
 version = "0.1.0"
 authors = ["lirsacc <c.lirsac@gmail.com>"]
 edition = "2018"

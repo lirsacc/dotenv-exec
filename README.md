@@ -1,4 +1,4 @@
-# dotenv-run
+# dotenv-exec
 
 Simple Rust wrapper around `execpv` (through [`std::os::unix::process::CommandExt`](https://doc.rust-lang.org/std/os/unix/process/trait.CommandExt.html#tymethod.exec)) and [dotenv-rs](https://github.com/dotenv-rs/dotenv).
 
@@ -8,4 +8,6 @@ This will execute a program populating envrionment variables from `.env` files. 
 
 - [ ] Publish binary
 - [ ] Do a bit more testing
+- [ ] CI?
 - [ ] Make it work with `-f <(...)` or stdin (`-`)
+- [ ] Examples

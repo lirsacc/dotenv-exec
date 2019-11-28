@@ -1,4 +1,4 @@
-//! dotenv-run cli
+//! dotenv-exec cli
 //! ==============
 //!
 
@@ -14,8 +14,8 @@ use users::{get_group_by_name, get_user_by_name};
 
 #[derive(Debug, StructOpt)]
 #[structopt(
-  name = "dotenv-run",
-  about = "Execute a command expanding a given dotfile in the process environment."
+  name = "dotenv-exec",
+  about = "Execute a command expanding specified dotenv files in the process environment."
 )]
 struct Options {
   /// User to run the command as
