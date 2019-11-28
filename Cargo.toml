@@ -1,0 +1,10 @@
+[package]
+name = "dotenv-run"
+version = "0.1.0"
+authors = ["lirsacc <c.lirsac@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+dotenv = { version = "0.15" }
+structopt = { version = "0.3", default-features = false }
+users = { version = "0.9" }
