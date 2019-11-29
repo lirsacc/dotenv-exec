@@ -2,9 +2,23 @@
 name = "dotenv-exec"
 version = "0.1.0"
 authors = ["lirsacc <c.lirsac@gmail.com>"]
-edition = "2018"
+homepage = "https://github.com/lirsacc/dotenv-exec"
+repository = "https://github.com/lirsacc/dotenv-exec"
+readme = "README.md"
+description = """
+dotenv-exec is a thin wrapper around execpv used to execute programs with
+environment variables provided by one or more dotenv files on unix systems.
+"""
+keywords = ["shell", "dotenv", "exec"]
+categories = ["command-line-utilities", "config"]
 
 license-file = "./LICENSE"
+
+exclude = [
+  ".github/"
+]
+
+edition = "2018"
 
 [dependencies]
 dotenv = { version = "0.15" }
