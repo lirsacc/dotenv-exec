@@ -1,10 +1,18 @@
 # dotenv-exec
 
+![Crates.io](https://img.shields.io/crates/v/dotenv-exec)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/lirsacc/dotenv-exec/ci)
+
 Simple Rust wrapper around `execpv` (through [`std::os::unix::process::CommandExt`](https://doc.rust-lang.org/std/os/unix/process/trait.CommandExt.html#tymethod.exec)) and [dotenv-rs](https://github.com/dotenv-rs/dotenv) for unix systems.
 
 This will execute a program populating environment variables from `.env` files. By default it will look up a file named `.env` in the current directory or any of its parents (you can disable this with `--no-default`) and load any env file specified with `-f / --file` in that order.
 
 All formatting, substitution and ordering rules are the same as `dotenv-rs`.
+
+## Installation
+
+- Install through cargo: `cargo install dotenv-exec`
+- Grab binaries from the [Github releases](https://github.com/lirsacc/dotenv-exec/releases) page.
 
 ## Examples
 
@@ -46,12 +54,8 @@ VAR_1=0
 VAR_3=3
 ```
 
-## TODO
+## Notes
 
-- [ ] Publish binary
-- [ ] Do a bit more testing
-- [x] CI -> [Github Actions](https://github.com/lirsacc/dotenv-exec/actions)
-- [x] Make sure it works with `-f <(...)`
-- [x] ~~Make sure it works with stdin (`-`)~~ (reading from strings rather than files [doesn't seem supported for now](https://github.com/dotenv-rs/dotenv/issues/15))
-- [x] Examples
-- [ ] Consider whether `--no-default` is the correct approach
+- This is a first version and there might be some changes based on how my usage evolves. Specifically I am not sure `--no-default` and `--ignore-missing` are the right defaults and I see a risk that the no override / reverse priority order behaviour could be counter intuitive.
+- As reading from strings rather than files [doesn't seem supported by dotenv-rs for now](https://github.com/dotenv-rs/dotenv/issues/15) this doesn't implement the `-f -` convention. IO redirection should work as an alternative when using dynamically generated env files.
+
