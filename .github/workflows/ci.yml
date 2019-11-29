@@ -1,0 +1,167 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+    - master
+
+jobs:
+  check:
+    name: Check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+        - ubuntu-18.04
+        - macOS-10.14
+        rust:
+        # - '1.39.0'
+        - stable
+        # - nightly
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      # - name: Cache rustup directory
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: ~/.rustup
+      #     key: ${{ runner.os }}-${{ matrix.rust }}-rustup
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-${{ matrix.rust }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.rust }}-cargo-registry
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-${{ matrix.rust }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.rust }}-cargo-index
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-${{ matrix.rust }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.rust }}-cargo-build-target
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: ${{ matrix.rust }}
+            override: true
+      - name: cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+      - name: cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+
+  build:
+    name: Build
+    needs: [check]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build:
+        - macos
+        - linux
+        - linux-musl
+        rust: [stable]
+        include:
+        - build: macos
+          os: macOS-10.14
+          target: x86_64-apple-darwin
+        - build: linux
+          os: ubuntu-18.04
+          target: x86_64-unknown-linux-gnu
+        - build: linux-musl
+          os: ubuntu-18.04
+          target: x86_64-unknown-linux-musl
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Cache rustup directory
+        uses: actions/cache@v1
+        with:
+          path: ~/.rustup
+          key: ${{ runner.os }}-${{ matrix.rust }}-rustup
+      - name: Install musl-gcc
+        if: contains(matrix.target, 'musl')
+        run: |
+          sudo apt-get install musl-tools
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-${{ matrix.rust }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.rust }}-cargo-registry
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-${{ matrix.rust }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.rust }}-cargo-index
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-${{ matrix.rust }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.rust }}-cargo-build-target
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+            target: ${{ matrix.target }}
+      - name: cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --verbose --target ${{ matrix.target }}
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: dotenv-exec-${{ matrix.target }}
+          path: ./target/${{ matrix.target }}/release/dotenv-exec
+
+  collect-binaries:
+    name: Collect binaries
+    needs: [build]
+    runs-on: ubuntu-18.04
+    steps:
+        - uses: actions/download-artifact@v1
+          with:
+            name: dotenv-exec-x86_64-apple-darwin
+        - uses: actions/download-artifact@v1
+          with:
+            name: dotenv-exec-x86_64-unknown-linux-gnu
+        - uses: actions/download-artifact@v1
+          with:
+            name: dotenv-exec-x86_64-unknown-linux-musl
+        - name: Collect binaries
+          run: |
+            mkdir dist
+            mv dotenv-exec-x86_64-apple-darwin/dotenv-exec dist/dotenv-exec-x86_64-apple-darwin
+            mv dotenv-exec-x86_64-unknown-linux-gnu/dotenv-exec dist/dotenv-exec-x86_64-unknown-linux-gnu
+            mv dotenv-exec-x86_64-unknown-linux-musl/dotenv-exec dist/dotenv-exec-x86_64-unknown-linux-musl
+            cd dist
+            echo "$(for x in *; do shasum -a 256 $x; done)" > checksums.txt
+            cd ..
+        - name: Archive dist
+          uses: actions/upload-artifact@v1
+          with:
+            name: dist
+            path: ./dist
