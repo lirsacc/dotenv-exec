@@ -74,7 +74,6 @@ fn main() {
     match dotenv::from_path(path) {
       Ok(_) => {}
       Err(dotenv::Error::Io(e)) => {
-        dbg!(&e);
         if e.kind() != io::ErrorKind::NotFound || !options.ignore_missing {
           eprintln!("Failed to load env file at {}: {}", path.display(), e);
           exit(1);
