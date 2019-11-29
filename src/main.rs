@@ -63,6 +63,12 @@ fn main() {
   if !options.no_default {
     match dotenv::dotenv() {
       Ok(_) => {}
+      Err(dotenv::Error::Io(e)) => {
+        if e.kind() != io::ErrorKind::NotFound || !options.ignore_missing {
+          eprintln!("Failed to load default env file: {}", e);
+          exit(1);
+        }
+      }
       Err(e) => {
         eprintln!("Failed to load default env file: {}", e);
         exit(1);
