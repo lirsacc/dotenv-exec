@@ -1,6 +1,6 @@
 [package]
 name = "dotenv-exec"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["lirsacc <c.lirsac@gmail.com>"]
 homepage = "https://github.com/lirsacc/dotenv-exec"
 repository = "https://github.com/lirsacc/dotenv-exec"
